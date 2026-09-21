@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - CLICKORA AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #080a10;
+            color: #ffffff;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 245px;
+            background: #0d1018;
+            border-right: 1px solid #202638;
+            padding: 25px 18px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 800;
+            margin-bottom: 45px;
+            padding-left: 10px;
+        }
+
+        .logo span {
+            color: #8b5cf6;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            color: #697187;
+            letter-spacing: 1.5px;
+            margin: 0 10px 12px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            color: #9aa2b5;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #171326;
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .logout {
+            position: absolute;
+            bottom: 25px;
+            left: 18px;
+            right: 18px;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 245px;
+            width: calc(100% - 245px);
+            padding: 35px 45px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .welcome small {
+            color: #737c91;
+            font-size: 12px;
+        }
+
+        .welcome h1 {
+            margin: 6px 0 0;
+            font-size: 28px;
+        }
+
+        .user {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #21183d;
+            color: #b79aff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        /* ANALYZER */
+
+        .analyzer {
+            max-width: 1000px;
+        }
+
+        .section-label {
+            color: #8b5cf6;
+            font-size: 10px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            margin: 0 0 25px;
+        }
+
+        .card {
+            background: #0e121c;
+            border: 1px solid #252b3c;
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        .field {
+            margin-bottom: 22px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #b7bdca;
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            background: #090c13;
+            border: 1px solid #293044;
+            color: white;
+            border-radius: 8px;
+            padding: 13px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .field textarea {
+            min-height: 105px;
+            resize: vertical;
+        }
+
+        .field input:focus,
+        .field textarea:focus,
+        .field select:focus {
+            border-color: #8b5cf6;
+        }
+
+        /* UPLOAD */
+
+        .upload {
+            border: 1px dashed #3a4155;
+            border-radius: 12px;
+            padding: 35px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upload:hover {
+            border-color: #8b5cf6;
+            background: #11101b;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .upload-title {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .upload-text {
+            color: #747d91;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        #thumbnail {
+            display: none;
+        }
+
+        #thumbnail-preview {
+            display: none;
+            max-width: 100%;
+            max-height: 280px;
+            margin: 20px auto 0;
+            border-radius: 8px;
+            border: 1px solid #30374b;
+        }
+
+        /* GRID */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* BUTTON */
+
+        .analyze-btn {
+            width: 100%;
+            border: 0;
+            border-radius: 9px;
+            padding: 15px;
+            background: #7c3aed;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .analyze-btn:hover {
+            background: #8b5cf6;
+            transform: translateY(-1px);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+        }
+
+        .hint {
+            text-align: center;
+            color: #626b80;
+            font-size: 11px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 850px) {
+
+            .sidebar {
+                width: 70px;
+                padding: 20px 8px;
+            }
+
+            .logo {
+                font-size: 0;
+            }
+
+            .logo span {
+                font-size: 18px;
+            }
+
+            .menu-title {
+                display: none;
+            }
+
+            .nav-item {
+                text-align: center;
+                font-size: 0;
+            }
+
+            .logout {
+                left: 8px;
+                right: 8px;
+            }
+
+            .main {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+                padding: 25px 18px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            CLICKORA <span>AI</span>
+        </div>
+
+
+        <div class="menu-title">
+            WORKSPACE
+        </div>
+
+
+        <a href="/dashboard"
+           class="nav-item active">
+
+            ◉ &nbsp; Analyzer
+
+        </a>
+
+
+        <a href="/history"
+           class="nav-item">
+
+            ◷ &nbsp; History
+
+        </a>
+
+
+        <div class="menu-title"
+             style="margin-top:30px;">
+
+            ACCOUNT
+
+        </div>
+
+
+        <a href="/profile"
+           class="nav-item">
+
+            ◯ &nbsp; Profile
+
+        </a>
+
+
+        <a href="/logout"
+           class="nav-item logout">
+
+            ↪ &nbsp; Logout
+
+        </a>
+
+    </aside>
+
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+
+        <div class="topbar">
+
+            <div class="welcome">
+
+                <small>
+                    AI CONTENT OPTIMIZATION
+                </small>
+
+                <h1>
+                    Content Analyzer
+                </h1>
+
+            </div>
+
+
+            <div class="user">
+
+                {{ session.get("user_name", "U")[0].upper() }}
+
+            </div>
+
+        </div>
+
+
+
+        <section class="analyzer">
+
+
+            <div class="section-label">
+                ANALYZE
+            </div>
+
+            <h2 class="section-title">
+                Optimize your next video
+            </h2>
+
+
+
+            <form
+                id="analyze-form"
+                action="/analyze"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+
+                <!-- THUMBNAIL -->
+
+                <div class="card">
+
+                    <div class="field">
+
+                        <label>
+                            Thumbnail
+                        </label>
+
+
+                        <label
+                            for="thumbnail"
+                            class="upload"
+                        >
+
+                            <div class="upload-icon">
+                                ↑
+                            </div>
+
+                            <div class="upload-title">
+                                Upload your thumbnail
+                            </div>
+
+                            <div class="upload-text">
+                                PNG, JPG, JPEG or WEBP · Max 5MB
+                            </div>
+
+
+                            <input
+                                type="file"
+                                id="thumbnail"
+                                name="thumbnail"
+                                accept=".png,.jpg,.jpeg,.webp"
+                            >
+
+
+                            <img
+                                id="thumbnail-preview"
+                                alt="Thumbnail Preview"
+                            >
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CONTENT -->
+
+                <div class="card">
+
+                    <div class="grid">
+
+
+                        <div class="field">
+
+                            <label>
+                                Video Title
+                            </label>
+
+                            <input
+                                type="text"
+                                name="title"
+                                placeholder="Enter your video title..."
+                                maxlength="150"
+                                required
+                            >
+
+                        </div>
+
+
+
+                        <div class="field">
+
+                            <label>
+                                Platform
+                            </label>
+
+                            <select name="platform">
+
+                                <option value="YouTube">
+                                    YouTube
+                                </option>
+
+                                <option value="Instagram">
+                                    Instagram
+                                </option>
+
+                                <option value="TikTok">
+                                    TikTok
+                                </option>
+
+                                <option value="Facebook">
+                                    Facebook
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="field">
+
+                        <label>
+                            Opening Hook
+                        </label>
+
+                        <textarea
+                            name="hook"
+                            placeholder="Write the first line or hook of your video..."
+                            maxlength="500"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        id="analyze-button"
+                        class="analyze-btn"
+                    >
+
+                        Analyze My Content →
+
+                    </button>
+
+
+                    <div class="hint">
+
+                        CLICKORA AI analyzes your thumbnail,
+                        title and hook to find optimization opportunities.
+
+                    </div>
+
+                </div>
+
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}">
+</script>
+
+</body>
+
+</html>
